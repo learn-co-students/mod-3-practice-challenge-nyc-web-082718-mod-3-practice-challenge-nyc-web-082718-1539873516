@@ -1,74 +1,68 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  const tableBody = document.getElementById("table-body")
-  const dogForm = document.getElementById("dog-form")
-  console.log(dogForm)
+const tableContainer = document.getElementById('table-body')
+const formContainer = document.getElementById('dog-form')
+const dogName = document.getElementById("name")
+const dogBreed = document.getElementById("breed")
+const dogSex = document.getElementById("sex")
+const dogRow = document.getElementById("dog-row")
 
-  dogList = [];
+
 
   fetch('http://localhost:3000/dogs')
     .then((response) => {
       return response.json()
     })
     .then((dogObj) => {
-      dogList = dogObj
-      dogList.forEach((dog) => {
-        tableBody.innerHTML += `<tr><td>${dog.name}</td>
-                                  <td>${dog.breed}</td>
-                                  <td>${dog.sex}</td>
-                                  <td><button id="${dog.id}">Edit</button></td></tr>`
+      dogObj.forEach((myDog) => {
+        let newDog = new Dog(myDog)
+        tableContainer.innerHTML += newDog.render()
       })
-    })
+    }) //end of then
 
-    document.addEventListener("click", function(event) {
-      let dogEditId = parseInt(event.target.id)
 
-      if(event.target.tagName === "BUTTON") {
+    document.addEventListener("click", function(event){
+        let editButtonId = event.target.id
 
-        let foundDog = dogList.find((dog) => {
-            return dog.id === dogEditId
-          })
+        let foundDog = Dog.findById(parseInt(editButtonId)) //returns an object
 
-        dogForm.innerHTML = `<input id="name" type="${foundDog.name}" name="${foundDog.name}" placeholder="name">
-                              <input id="breed" type="${foundDog.breed}" name="${foundDog.breed}" placeholder="breed">
-                              <input id="sex" type="${foundDog.sex}" name="${foundDog.sex}" placeholder="sex">
-                              <input id="submit" type="submit"value="Submit">
-                              `
+        formContainer.innerHTML = foundDog.updateForm() //showing the dog in the form
+    }) //end of event listener
 
-      dogForm.addEventListener("submit", function(event) {
-        event.preventDefault()
+    formContainer.addEventListener("submit", function(event) {
+      event.preventDefault()
+      debugger
+      let dogId = event.target.lastElementChild.dataset.id
 
-        const inputName = document.getElementById("name").value
-        const inputBreed = document.getElementById("breed").value
-        const inputSex = document.getElementById("sex").value
+      let foundDog = Dog.findById(parseInt(dogId))
 
-        tableBody.innerHTML = `<tr><td>${inputName}</td>
-                                <td>${inputBreed}</td>
-                                <td>${inputSex}</td></tr>`
+       const inputName = document.getElementById("name").value
+       const inputBreed = document.getElementById("breed").value
+       const inputSex = document.getElementById("sex").value
 
-          let foundDog = dogList.find((dog) => {
-                return dog.id === dogEditId
-          })
+       const dogRow = document.getElementById(`${dogId}`)
+       dogRow.innerHTML = `<tr>
+                             <td>${inputName}</td>
+                             <td>${inputBreed}</td>
+                             <td>${inputSex}</td>
+                             <td><button id="${foundDog.id}">Edit</button></td>
+                             </tr>`
 
-        fetch(`http://localhost:3000/dogs/${foundDog.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: inputName,
-            breed: inputBreed,
-            sex: inputSex
-          })
+      fetch(`http://localhost:3000/dogs/${dogId}`, {
+        method: 'PATCH',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: inputName,
+          breed: inputBreed,
+          sex: inputSex
         })
-
       })
+})
 
 
-
-      }//end of if statement
-  })
 
 
 
