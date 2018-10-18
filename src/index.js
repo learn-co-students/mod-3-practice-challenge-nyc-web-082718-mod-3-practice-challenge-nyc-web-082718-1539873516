@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', event => {
   const dogForm = document.getElementById('dog-form');
   editing = false;
 
-  // display all dogs
-  fetch(DOGS)
+  const allDogs = function() {
+    fetch(DOGS)
     .then(resp => resp.json())
     .then(dogsJSON => {
       table.innerHTML = dogsJSON.map(dog => renderDog(dog)).join('');
@@ -31,7 +31,11 @@ document.addEventListener('DOMContentLoaded', event => {
           dogForm.breed.value = currentBreed;
           dogForm.sex.value = currentSex;
         })})
-    })
+      })
+    }
+
+  // display all dogs
+  allDogs();
 
   // create or edit dog
   dogForm.addEventListener('submit', event => {
@@ -55,7 +59,7 @@ document.addEventListener('DOMContentLoaded', event => {
           fetch(DOGS)
             .then(resp => resp.json())
             .then(dogsJSON => {
-              table.innerHTML = dogsJSON.map(dog => renderDog(dog)).join('');
+              allDogs();
             })
         })
     } else {
@@ -71,7 +75,7 @@ document.addEventListener('DOMContentLoaded', event => {
           fetch(DOGS)
           .then(resp => resp.json())
           .then(dogsJSON => {
-            table.innerHTML = dogsJSON.map(dog => renderDog(dog)).join('');
+            allDogs();
           })
         })
     }
